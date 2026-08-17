@@ -1,33 +1,21 @@
-# OpenCode + GoRouter on Termux
+# OpenCode on Termux — Android AI Coding Setup
 
-👑 Author & Credits
-Created and maintained by Infinity Codes Free
-📢 Telegram: Infinity Codes Free
-▶️ YouTube: Infinity Code Lab Official
-This setup guide was created and maintained by Infinity Codes Free for the mobile developer community.
-💬 Support
-If this guide helped you, consider:
-⭐ Starring this repository
-📢 Joining the Telegram channel for updates
-▶️ Subscribing on YouTube
-📄 License
-This project is licensed under the MIT License.
-⚠️ Disclaimer
-This guide is provided for educational purposes. Use it at your own risk. Always download tools from official or trusted sources, and keep your device's software up to date.
-�
-Made with ❤️ by Infinity Codes Free
-
-A complete mobile setup guide for running [OpenCode](https://opencode.ai) in Termux on Android, using GoRouter as an OpenAI-compatible AI gateway — no desktop required.
+A complete mobile setup guide for running [OpenCode](https://opencode.ai) in Termux on Android — no desktop required.
 
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square)
 ![Shell](https://img.shields.io/badge/shell-Termux-1A1A1A?style=flat-square)
 ![Tool](https://img.shields.io/badge/tool-OpenCode-00BFFF?style=flat-square)
-![Gateway](https://img.shields.io/badge/gateway-GoRouter-8A2BE2?style=flat-square)
 ![License](https://img.shields.io/badge/license-unlicensed-lightgrey?style=flat-square)
+
+**Guide by Infinity Codes Free**
+📺 YouTube: [Infinity Code Lab Official](https://www.youtube.com/@InfinityCodeLabOfficial)
+💬 Telegram: [Infinity Codes Free](https://t.me/Infinitycodesfree)
 
 ## Overview
 
-Termux hosts Node.js and OpenCode on an Android phone. OpenCode talks to a custom `gorouter` provider, which proxies requests through GoRouter's OpenAI-compatible API to Claude Opus 5 Thinking. This repo documents that setup end to end.
+Termux hosts Node.js and OpenCode on an Android phone, so you get a full AI coding assistant in your pocket. OpenCode can connect to any AI provider you hold a legitimate account and API key with. This repo documents that setup end to end.
+
+> ⚠️ **Only use API keys issued directly by the provider's own dashboard.** Third-party "gateway" or "free key" channels are frequently unauthorized resellers running on compromised payment methods — routing your traffic through one exposes your prompts to an untrusted party, and the key can be revoked without warning. Get your key straight from your provider's account.
 
 ## Architecture
 
@@ -35,9 +23,7 @@ Termux hosts Node.js and OpenCode on an Android phone. OpenCode talks to a custo
 flowchart TD
     A[Android Phone] --> B[Termux]
     B --> C[OpenCode]
-    C --> D["gorouter provider"]
-    D --> E["GoRouter API (OpenAI-compatible)"]
-    E --> F["Claude Opus 5 Thinking"]
+    C --> D["Your AI Provider (API key you own)"]
 ```
 
 ## Status
@@ -47,22 +33,18 @@ flowchart TD
 | Termux | ✅ |
 | Node.js | ✅ |
 | OpenCode | ✅ |
-| GoRouter credential | ✅ |
-| GoRouter provider | ✅ |
-| OpenAI-compatible API | ✅ |
-| Claude Opus 5 Thinking | ✅ |
+| Provider credential | ✅ |
+| Provider connected | ✅ |
 | Model selection | ✅ |
 | AI response | ✅ |
 
 ## Features
 
 - OpenCode running fully inside Termux
-- GoRouter API key authentication
-- Custom `gorouter` provider definition
-- Access to Claude Opus 5 Thinking
+- Direct connection to your own provider account (no middleman)
+- Optional custom provider definition for any OpenAI-compatible endpoint
 - In-app model selection via `/models`
 - AI coding/chat from an Android phone
-- OpenAI-compatible request/response format
 - No companion Android app required
 
 ## Table of Contents
@@ -86,7 +68,7 @@ flowchart TD
 - An Android phone
 - [Termux](https://termux.dev) installed
 - An internet connection
-- A GoRouter account and API key
+- An API key from your own account with a legitimate AI provider
 - OpenCode (installed below)
 
 > ⚠️ **Never share your API key.** Don't post it on GitHub, in screenshots, in chat, or commit it to a repo. If a key is ever exposed, revoke it immediately and issue a new one.
@@ -99,20 +81,16 @@ For a fresh Termux install, this is the whole setup end to end:
 pkg update -y && pkg upgrade -y
 pkg install nodejs git curl nano -y
 npm install -g opencode-ai
-mkdir -p ~/.config/opencode
-nano ~/.config/opencode/opencode.json   # paste the config from "Configuration" below
 opencode
 ```
 
 Then inside OpenCode:
 
 ```
-/connect          → Other → gorouter → paste your API key
-/models           → GoRouter → Claude Opus 5 Thinking
+/connect          → pick your provider → paste your API key
+/models           → pick your provider → pick a model
 hi                → confirm you get a response
 ```
-
-Expected footer on a successful reply: `Build · Claude Opus 5 Thinking · GoRouter`
 
 The sections below walk through each step in detail.
 
@@ -137,7 +115,7 @@ npm --version
 
 ```bash
 npm install -g opencode-ai
-opencode --version   # e.g. 1.15.10
+opencode --version
 ```
 
 Launch it once to confirm it starts:
@@ -148,37 +126,27 @@ opencode
 
 ## Configuration
 
-### 1. Create a GoRouter API key
+There are two paths, depending on your provider.
 
-1. Open the GoRouter dashboard in your browser.
-2. Go to **API Keys**.
-3. Create a new key.
-4. If GoRouter exposes model restrictions on the key, confirm it's allowed to use the model you want (leave **Model Limits** empty for unrestricted access, if your dashboard supports that).
+### Path A — Using a built-in provider (recommended)
 
-### 2. Connect the credential in OpenCode
-
-Start OpenCode and run:
+Most major providers, including Anthropic directly, are supported out of the box. Inside OpenCode:
 
 ```
 /connect
 ```
 
-- Choose **Other**
-- Provider ID: `gorouter`
-- Paste your GoRouter API key
-
-You'll see:
+Pick your provider from the list and paste the API key from that provider's own dashboard. Then:
 
 ```
-Saved credential for gorouter.
-Configure it in opencode.json to use it.
+/models
 ```
 
-That's expected — `/connect` only stores the credential. The provider still needs to be defined in `opencode.json`, which is the next step.
+Pick your provider and select a model from the list OpenCode shows you — this list is pulled live from your account, so you don't need to type a model ID by hand.
 
-### 3. Define the provider
+### Path B — Custom OpenAI-compatible provider
 
-Create the config directory and open the file:
+If you use a different legitimate provider that exposes an OpenAI-compatible endpoint, define it manually.
 
 ```bash
 mkdir -p ~/.config/opencode
@@ -189,15 +157,15 @@ nano ~/.config/opencode/opencode.json
 {
   "$schema": "https://opencode.ai/config.json",
   "provider": {
-    "gorouter": {
+    "yourprovider": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "GoRouter",
+      "name": "Your Provider Name",
       "options": {
-        "baseURL": "https://gorouter.app/v1"
+        "baseURL": "https://your-provider-domain.example/v1"
       },
       "models": {
-        "claude-opus-5-thinking": {
-          "name": "Claude Opus 5 Thinking"
+        "YOUR_MODEL_ID": {
+          "name": "Display Name For This Model"
         }
       }
     }
@@ -205,9 +173,11 @@ nano ~/.config/opencode/opencode.json
 }
 ```
 
+Replace every placeholder with the exact values from your provider's own documentation — don't guess at a base URL or model ID.
+
 Save and exit nano: `Ctrl+O`, `Enter`, `Ctrl+X`.
 
-### 4. Restart and select the model
+### Restart and select the model
 
 Exit OpenCode completely, then start it again:
 
@@ -215,20 +185,11 @@ Exit OpenCode completely, then start it again:
 opencode
 ```
 
-Open the model selector:
-
 ```
 /models
 ```
 
-You should see:
-
-```
-GoRouter
-└── Claude Opus 5 Thinking
-```
-
-Select **Claude Opus 5 Thinking**.
+Select your model from the provider you configured.
 
 ## Verifying the Setup
 
@@ -240,15 +201,7 @@ Type:
 hi
 ```
 
-A successful reply looks like:
-
-```
-Hi. What are you working on?
-
-Build · Claude Opus 5 Thinking · GoRouter
-```
-
-Seeing **GoRouter** next to the model name confirms OpenCode is routing through the GoRouter provider.
+A reply confirms OpenCode is talking to your provider. The footer of the reply shows which provider and model answered.
 
 ### Check saved authentication
 
@@ -256,7 +209,7 @@ Seeing **GoRouter** next to the model name confirms OpenCode is routing through 
 opencode auth list
 ```
 
-The credential should appear as `gorouter`. This only confirms a credential is saved — it never prints the actual secret.
+Your credential should appear listed. This only confirms a credential is saved — it never prints the actual secret.
 
 ### Inspect the configuration
 
@@ -264,7 +217,7 @@ The credential should appear as `gorouter`. This only confirms a credential is s
 cat ~/.config/opencode/opencode.json
 ```
 
-You should see the `gorouter` provider block. Avoid putting your raw API key directly in this file unless you understand the tradeoff — the credential saved via `/connect` is the safer option.
+Avoid putting a raw API key directly in this file unless you understand the tradeoff — the credential saved via `/connect` is the safer option.
 
 ## Usage
 
@@ -315,21 +268,23 @@ opencode
 
 ## Direct API Access
 
-GoRouter exposes an OpenAI-compatible chat completions endpoint, so you can test it directly with `curl`:
+If your provider is Anthropic, you can test your own key directly against the documented Messages API with `curl`:
 
 ```bash
-curl https://gorouter.app/v1/chat/completions \
+curl https://api.anthropic.com/v1/messages \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
   -d '{
-    "model": "claude-opus-5-thinking",
+    "model": "YOUR_MODEL_ID",
+    "max_tokens": 256,
     "messages": [
       { "role": "user", "content": "Say hello in one sentence." }
     ]
   }'
 ```
 
-Replace `YOUR_API_KEY` locally — never paste a real key into a public repo or chat.
+Replace `YOUR_API_KEY` and `YOUR_MODEL_ID` locally — never paste a real key into a public repo or chat. For any other provider, use the request format their own docs specify.
 
 ## Advanced Configuration
 
@@ -338,69 +293,41 @@ Replace `YOUR_API_KEY` locally — never paste a real key into a public repo or 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "gorouter/claude-opus-5-thinking",
-  "provider": {
-    "gorouter": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "GoRouter",
-      "options": {
-        "baseURL": "https://gorouter.app/v1"
-      },
-      "models": {
-        "claude-opus-5-thinking": {
-          "name": "Claude Opus 5 Thinking"
-        }
-      }
-    }
-  }
+  "model": "yourprovider/YOUR_MODEL_ID"
 }
 ```
 
-With this set, OpenCode starts directly on the GoRouter model.
+With this set, OpenCode starts directly on that model.
 
 ### Add additional models
 
-Add more entries under `"models"`:
+Add more entries under `"models"` in a custom provider block:
 
 ```json
 "models": {
-  "claude-opus-5-thinking": {
-    "name": "Claude Opus 5 Thinking"
+  "YOUR_MODEL_ID": {
+    "name": "Display Name"
   },
-  "YOUR_OTHER_MODEL_ID": {
-    "name": "Your Other Model"
+  "ANOTHER_MODEL_ID": {
+    "name": "Another Display Name"
   }
 }
 ```
 
-Use the exact model ID GoRouter provides — don't guess at IDs. Restart OpenCode and run `/models` to confirm the new entry appears.
-
-### Model restrictions
-
-GoRouter API keys can be scoped to specific models. If a key's **Model Limits** are set to only `claude-opus-5-thinking`, it won't be able to reach other models until you update the key's permissions in the GoRouter dashboard. After changing permissions, restart OpenCode and re-run `/models`.
+Use the exact model ID your provider gives you — don't guess at IDs. Restart OpenCode and run `/models` to confirm the new entry appears.
 
 ## Troubleshooting
 
-### Cloudflare 403 on a direct curl test
+### Connection or auth errors
 
-```bash
-curl -I https://gorouter.app/v1/chat/completions
-```
+If OpenCode can't reach your provider or rejects your key, check:
 
-```
-HTTP/2 403
-server: cloudflare
-```
+- API key validity (test it with the provider's own dashboard or a direct `curl` call)
+- Base URL, if you're on a custom provider (Path B)
+- Your account status / billing with the provider
+- Your network connection
 
-This means the request was rejected before reaching the API. Before changing the model ID, check:
-
-- API key validity
-- Base URL
-- GoRouter account status
-- Model permissions
-- Network connection
-
-If OpenCode itself already shows `Build · Claude Opus 5 Thinking · GoRouter` and returns responses normally, the connection is working — this 403 test isn't something you need to chase further.
+If OpenCode already returns responses normally and shows the right model/provider in the footer, the connection is working.
 
 ## Updating
 
@@ -410,24 +337,30 @@ npm update -g opencode-ai
 opencode --version
 ```
 
-After major OpenCode updates, double-check the provider config — provider syntax occasionally changes between versions.
+After major OpenCode updates, double-check your provider config — provider syntax occasionally changes between versions.
 
 ## Security
 
-- Never share, screenshot, or commit your GoRouter API key.
+- Never share, screenshot, or commit your API key.
 - Add `opencode.json`, `.env`, and any config files with embedded secrets to `.gitignore`.
 - Prefer the credential stored via `/connect` over hardcoding a key in `opencode.json`.
+- Only use keys issued directly by your provider's own account dashboard — not shared or "free" keys from third parties.
 - If a key is ever exposed:
-  1. Open the GoRouter dashboard.
-  2. Go to **API Keys**.
+  1. Open your provider's dashboard.
+  2. Go to API Keys.
   3. Revoke the exposed key.
   4. Create a new one.
   5. Reconnect it with `/connect` in OpenCode.
 
 ## Disclaimer
 
-This is an independent, personal setup guide. It isn't affiliated with, endorsed by, or sponsored by Anthropic, the OpenCode maintainers, or GoRouter. "Claude" and related model names belong to Anthropic. GoRouter's access to any given model, its pricing, and its terms of service are controlled solely by GoRouter — review them yourself before depending on this setup for anything important.
+This is an independent, personal setup guide. It isn't affiliated with, endorsed by, or sponsored by Anthropic or the OpenCode maintainers. "Claude" and related model names belong to Anthropic. Any provider's access, pricing, and terms of service are controlled solely by that provider — review them yourself before depending on this setup for anything important.
 
 ## License
 
 Not yet licensed. If you plan to share this repo publicly, add a `LICENSE` file — MIT is a common, permissive choice for a setup guide like this.
+
+---
+
+Guide written and maintained by **Infinity Codes Free**.
+More Android/AI setup guides: [YouTube](https://www.youtube.com/@InfinityCodeLabOfficial) · [Telegram](https://t.me/Infinitycodesfree)
