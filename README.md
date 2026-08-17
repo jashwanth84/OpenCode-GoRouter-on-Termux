@@ -1,5 +1,22 @@
 # OpenCode + GoRouter on Termux
 
+👑 Author & Credits
+Created and maintained by Infinity Codes Free
+📢 Telegram: Infinity Codes Free
+▶️ YouTube: Infinity Code Lab Official
+This setup guide was created and maintained by Infinity Codes Free for the mobile developer community.
+💬 Support
+If this guide helped you, consider:
+⭐ Starring this repository
+📢 Joining the Telegram channel for updates
+▶️ Subscribing on YouTube
+📄 License
+This project is licensed under the MIT License.
+⚠️ Disclaimer
+This guide is provided for educational purposes. Use it at your own risk. Always download tools from official or trusted sources, and keep your device's software up to date.
+�
+Made with ❤️ by Infinity Codes Free
+
 A complete mobile setup guide for running [OpenCode](https://opencode.ai) in Termux on Android, using GoRouter as an OpenAI-compatible AI gateway — no desktop required.
 
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square)
